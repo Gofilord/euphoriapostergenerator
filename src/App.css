@@ -19,7 +19,6 @@ body {
 }
 
 .poster-wrapper svg {
-    /* width: 70%; */
     height: 80%;
     mix-blend-mode: luminosity;
     filter: contrast(1.6);

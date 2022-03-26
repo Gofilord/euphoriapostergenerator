@@ -58,8 +58,8 @@ function App() {
   // rue[2], rue[14] - stuck
   const [generalFontSize, setGeneralFontSize] = useState(18);
   const [color] = useState(getRandomColor());
-  // const [character] = useState(getRandomCharacter());
-  const [character] = useState('rue');
+  const [character] = useState(getRandomCharacter());
+  // const [character] = useState('rue'); // Test problamatic quote
   const [quote, setQuote] = useState('');
   const [characterTopMargin, setCharacterTopMargin] = useState(0);
   const [quoteOutOfCanvas, setQuoteOutOfCanvas] = useState(false);  
@@ -67,8 +67,8 @@ function App() {
   
   useEffect(() => {
     if (character) {
-      // setQuote(getRandomQuote(character));
-    setQuote(Quotes[character][8])
+      setQuote(getRandomQuote(character)); 
+    // setQuote(Quotes[character][8]) // Test problamatic quote
     }
   }, [character]);
   
