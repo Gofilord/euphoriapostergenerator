@@ -22,6 +22,7 @@ body {
     /* width: 70%; */
     height: 80%;
     mix-blend-mode: luminosity;
+    filter: contrast(1.6);
     shape-margin: 10px;
 }
 
@@ -37,7 +38,7 @@ body {
     text-transform: uppercase;
     line-height: 1;
     font-weight: bold;
-    font-family: 'Paytone one', sans-serif;
+    font-family: 'Volkhov', sans-serif;
 }
 
 .overlay {

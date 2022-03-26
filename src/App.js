@@ -5,7 +5,7 @@ import { ReactComponent as Cal } from './svgs/cal.svg';
 import { ReactComponent as Nate } from './svgs/nate.svg';
 import { ReactComponent as Cassie } from './svgs/cassie.svg';
 import { ReactComponent as Maddy } from './svgs/maddy.svg';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const characters = {
   'rue': {
@@ -55,19 +55,71 @@ const smallWords = ['of', 'and', 'the', 'to'];
 
 
 function App() {
+  // rue[2], rue[14] - stuck
   const [generalFontSize, setGeneralFontSize] = useState(18);
   const [color] = useState(getRandomColor());
-  const [character] = useState(getRandomCharacter());
+  // const [character] = useState(getRandomCharacter());
+  const [character] = useState('rue');
   const [quote, setQuote] = useState('');
   const [characterTopMargin, setCharacterTopMargin] = useState(0);
-
+  const [quoteOutOfCanvas, setQuoteOutOfCanvas] = useState(false);  
+  const wordRefs = useRef([]);
+  
   useEffect(() => {
     if (character) {
-      setQuote(getRandomQuote(character));
+      // setQuote(getRandomQuote(character));
+    setQuote(Quotes[character][8])
     }
   }, [character]);
-
+  
   const Svg = characters[character]?.svg;
+
+  const getLastWordRect = () => {
+    if (wordRefs.current.length) {
+      return wordRefs.current[wordRefs.current.length - 1].getBoundingClientRect();
+    }
+  };
+
+  const removeGaps = useCallback(async () => {
+    console.log('trying to remove gaps');
+    let previousWordRect;
+    wordRefs.current.forEach(word => {
+      console.log('going over ', word.innerHTML);
+      const rect = word.getBoundingClientRect();
+      console.log('rect:', rect);
+      if (previousWordRect) {
+        if ((rect.top - previousWordRect.top) > generalFontSize) { // that means there's a gap
+          word.style.fontSize = (parseFloat(word.style.fontSize) - 10) + 'px';
+        }
+      }
+      previousWordRect = rect;
+    });
+    const amountOfRows = countRows() + 1;
+
+    console.log('checking if need to remove gaps');
+    // check if there are still gaps
+    if (getLastWordRect().bottom > (amountOfRows * generalFontSize) + 30) {
+      removeGaps();
+    }
+
+    return;
+  }, [wordRefs, generalFontSize]);
+
+  const countRows = () => {
+    let counter = 0;
+    let prevRect;
+    wordRefs.current.forEach(word => {
+      const rect = word.getBoundingClientRect();
+      if (prevRect) {
+        if (rect.top !== prevRect.top) {
+          counter++;
+        }
+      }
+      prevRect = rect;
+    });
+
+    return counter;
+  }
 
   // resize text accordingly
   useEffect(() => {
@@ -75,69 +127,28 @@ function App() {
       const canvas = document.getElementById('canvas');
       if (canvas) {
         const canvasHeight = canvas.getBoundingClientRect().height;
-      
         const characterHeight = document.getElementById('character').getBoundingClientRect().height;
-        console.log(characterHeight);
         setCharacterTopMargin(canvasHeight - characterHeight);
-
-        const words = document.querySelectorAll('.quote-word');
   
-        let lastWordRect = words[words.length - 1].getBoundingClientRect();
-        if (canvasHeight - lastWordRect.y > 30) {
-          console.log('setting new font size');
-          setGeneralFontSize(generalFontSize + 4);
+        console.log('lastWordRect.y:', getLastWordRect().y);
+        if (canvasHeight - getLastWordRect().y > 30 && !quoteOutOfCanvas) {
+          console.log('enlarging');
+          setGeneralFontSize((oldFontSize) => oldFontSize + 4);
         } else { // this means it finished adjusting font size
-          console.log('adjusting individual words');
-
-          const removeGaps = async () => {
-            let previousWordRect;
-            words.forEach(word => {
-              const rect = word.getBoundingClientRect();
-              if (previousWordRect) {
-                if ((rect.top - previousWordRect.top) > generalFontSize) { // that means there's a gap
-                  word.style.fontSize = (parseFloat(word.style.fontSize) - 10) + 'px';
-                }
-              }
-              previousWordRect = rect;
-            });
-            const amountOfRows = countRows() + 1;
-            lastWordRect = words[words.length - 1].getBoundingClientRect();
-
-            // check if there are still gaps
-            if (lastWordRect.bottom > (amountOfRows * generalFontSize) + 30) {
-              console.log('need to remove rows again');
-              removeGaps();
-            }
-          }
-
-          const countRows = () => {
-            let counter = 0;
-            let prevRect;
-            words.forEach(word => {
-              const rect = word.getBoundingClientRect();
-              if (prevRect) {
-                if (rect.top !== prevRect.top) {
-                  counter++;
-                }
-              }
-              prevRect = rect;
-            });
-
-            return counter;
-          }
-
-          await removeGaps();
-          
+          console.log('finished enlarging');
           // take care of quote outside of canvas
-          lastWordRect = words[words.length - 1].getBoundingClientRect();
-          while (lastWordRect.y > canvasHeight) {
-            setGeneralFontSize(generalFontSize - 4);
-            lastWordRect = words[words.length - 1].getBoundingClientRect();
-          }
+          // console.log('INSIDE -- canvasHeight:', canvasHeight, 'lastWordRect.y:', getLastWordRect().y);
+          await removeGaps();
+          console.log('finished remove gaps');
+          if (canvasHeight < getLastWordRect().y) {
+            console.log('smaller font size');
+            setQuoteOutOfCanvas(true);
+            setGeneralFontSize((oldFontSize) => oldFontSize - 4);
+          } 
         }
       }
     }, 200);
-  }, [generalFontSize]);
+  }, [removeGaps, quoteOutOfCanvas]);
 
   const characterFloat = characters[character]?.float;
   const characterFloatingRight = characters[character]?.float === 'right';
@@ -156,7 +167,15 @@ function App() {
         }} />}
         {quote.split(' ').map((word, index) => {
           const fontSize = (smallWords.includes(word) ? generalFontSize * 0.7 : generalFontSize) + 'px';
-          return <span className='quote-word' key={index} style={{ fontSize }}>{word} </span>
+          return (
+            <span 
+              className='quote-word' 
+              key={index} 
+              style={{ fontSize }}
+              ref={(ref) => wordRefs.current.splice(index, 1, ref)}>
+              {word + " "}
+            </span>
+          )
         })}
         <div className="overlay" style={{
           background: `linear-gradient(15deg, ${color}, transparent), url(https://grainy-gradients.vercel.app/noise.svg)`
