@@ -15,14 +15,36 @@ body {
     height: 100vh;
     aspect-ratio: .75;
     overflow: hidden;
-    border: 10px solid black;
+    border: 15px solid white;
 }
 
-.poster-wrapper svg {
+.poster-wrapper svg,
+.poster-wrapper img {
+    display: block;
     height: 80%;
     mix-blend-mode: luminosity;
     filter: contrast(1.6);
     shape-margin: 10px;
+}
+
+.rue {
+    shape-outside: url('./svgs/rue.svg');
+}
+
+.cal {
+    shape-outside: url('./svgs/cal.svg');
+}
+.nate {
+    shape-outside: url('./svgs/nate.svg');
+}
+.cassie {
+    shape-outside: url('./svgs/cassie.svg');
+}
+.maddy {
+    shape-outside: url('./svgs/maddy.svg');
+}
+.fezco {
+    shape-outside: url('./svgs/fezco.svg');
 }
 
 .quote-word {
