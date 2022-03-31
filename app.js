@@ -1,3 +1,5 @@
+'use strict';
+
 const fetchQuotes = async () => {
     return fetch('./quotes.json').then(res => res.json()).then(quotes => {
         return quotes;
@@ -41,7 +43,7 @@ const getRandomCharacterName = () => {
 
 const getRandomCharacter = () => {
     const name = getRandomCharacterName();
-    // const name = 'rue';
+    // const name = 'cassie';
     return {
         name,
         ...characters[name]
@@ -61,10 +63,15 @@ const generate = async () => {
     const character = getRandomCharacter();
     const allQuotes = await fetchQuotes();
     const quote = allQuotes[character.name][Math.floor(Math.random() * allQuotes[character.name].length)];
-    // const quote = allQuotes['rue'][19];
+    // const quote = allQuotes['cassie'][3];
 
+    let cache;
     const getWordElements = () => {
-        return document.querySelectorAll('.quote-word');
+        if (cache) {
+            return cache;
+        }
+        cache = document.querySelectorAll('.quote-word');
+        return cache;
     }
 
     const getLastWordRect = () => {
@@ -75,6 +82,7 @@ const generate = async () => {
     };
 
     const removeGaps = async () => {
+        console.log('removing gaps');
         const words = getWordElements();
         let previousWordRect;
         for (let i = 0; i < words.length; i++) {
@@ -91,7 +99,7 @@ const generate = async () => {
 
         // check if there are still gaps
         if (getLastWordRect().bottom > (amountOfRows * generalFontSize) + 45) {
-            removeGaps();
+            await removeGaps();
         }
 
         return;
@@ -119,9 +127,10 @@ const generate = async () => {
     const updateFontSizeForAll = (addition) => new Promise ((resolve) => {
         setTimeout(() => {
             const words = getWordElements();
-            words.forEach(word => {
-                word.style.fontSize = (parseFloat(word.style.fontSize) + addition) + 'px';
-            });
+            console.log('updating font size for', words.length);
+            for (let i = 0; i < words.length; i++) {
+                words[i].style.fontSize = (parseFloat(words[i].style.fontSize) + addition) + 'px';
+            }
             generalFontSize += addition;
             resolve();
         }, DEFAULT_TIMEOUT)
@@ -138,11 +147,11 @@ const generate = async () => {
     $posterWrapper.append($svgElement);
 
     const svgHeight = $svgElement.getBoundingClientRect().height;
-    const canvasHeight = $posterWrapper.getBoundingClientRect().height;
+    const canvasHeight = $posterWrapper.getClientRects()[0].height;
     $svgElement.style.float = character.float;
     $svgElement.style.marginLeft = character.float === 'right' ? 'auto' : -30 + 'px';
     $svgElement.style.marginRight = character.float === 'right' ? -30 + 'px' : 'auto';
-    $svgElement.style.marginTop = (canvasHeight - svgHeight) + 'px';
+    $svgElement.style.marginTop = (canvasHeight - svgHeight - 45) + 'px';
 
     // add quote words
     quote.split(' ').forEach((word, index) => {
@@ -163,13 +172,14 @@ const generate = async () => {
 
     // MAGIC IS HERE
     const enlargeTextToFillCanvas = () => new Promise((resolve) => {
-        updateFontSizeForAll(4).then(() => {
-            if (canvasHeight - getLastWordRect().y > 30) {
+        if (canvasHeight - getLastWordRect().y > 30) {
+            updateFontSizeForAll(4).then(() => {
                 enlargeTextToFillCanvas().then(resolve)
-            } else {
-                resolve();
-            }
-        })
+            })
+        } else {
+            resolve();
+        }
+        
     });
 
     const fitTextInCanvas = () => new Promise((resolve) => {
@@ -185,6 +195,7 @@ const generate = async () => {
     await enlargeTextToFillCanvas();
     await removeGaps();
     await fitTextInCanvas();
+    console.log('done adjusting');
 }   
 
 document.addEventListener('DOMContentLoaded', () => {

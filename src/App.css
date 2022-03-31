@@ -18,29 +18,6 @@ body {
     border: 15px solid white;
 }
 
-@media screen and (max-width: 600px) {
-    .poster-wrapper {
-        aspect-ratio: none;
-        width: 100%;
-        border-right: none;
-        border-left: none;
-        height: 90vh;
-    }
-}
-
-.poster-wrapper:after {
-    content: "";
-    display: block;
-    position: absolute;
-    width: 100%;
-    left: 0;
-    top: 0;
-    height: 100%;
-    background: radial-gradient(transparent 70%, black);
-    z-index: 3;
-    opacity: .2;
-}
-
 .poster-wrapper svg,
 .poster-wrapper img {
     display: block;
@@ -53,6 +30,7 @@ body {
 .rue {
     shape-outside: url('./svgs/rue.svg');
 }
+
 .cal {
     shape-outside: url('./svgs/cal.svg');
 }
@@ -75,13 +53,13 @@ body {
     margin: 0;
     padding: 0;
     color: white;
+    white-space: pre-wrap;
     font-size: 18px;
     z-index: 2;
     text-transform: uppercase;
     line-height: 1;
     font-weight: bold;
     font-family: 'Volkhov', sans-serif;
-    white-space: break-spaces;
 }
 
 .overlay {
