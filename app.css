@@ -92,3 +92,11 @@ body {
     top: 0;
     bottom: 0;
 }
+
+.loading-rect {
+    position: absolute;
+}
+
+.loading-finished .loading-rect {
+    display: none;
+}

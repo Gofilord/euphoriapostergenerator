@@ -8,6 +8,8 @@ const fetchQuotes = async () => {
 
 const DEFAULT_TIMEOUT = 200;
 
+const randomNumber = (min, max) => Math.floor(Math.random() * (max - min)) + min;
+
 const characters = {
     'rue': {
         float: 'right'
@@ -63,7 +65,7 @@ const generate = async () => {
     const character = getRandomCharacter();
     const allQuotes = await fetchQuotes();
     const quote = allQuotes[character.name][Math.floor(Math.random() * allQuotes[character.name].length)];
-    // const quote = allQuotes['cassie'][3];
+    // const quote = allQuotes['cassie'][1];
 
     let cache;
     const getWordElements = () => {
@@ -192,9 +194,49 @@ const generate = async () => {
         }
     });
 
+    // show loading state
+    const showLoadingState = () => {
+        const canvasWidth = $posterWrapper.getClientRects()[0].width;
+        let counter = 100;
+
+        const addRect = () => {
+            setTimeout(() => {
+                const randomX = randomNumber(0, canvasWidth);
+                const randomY = randomNumber(0, canvasHeight);
+                const randomWidth = randomNumber(100, 700);
+                const randomHeight = randomNumber(100, 1000);
+                const randomOpacity = Math.random();
+    
+                const $rectangle = document.createElement('div');
+                $rectangle.style.background = `rgba(255, 255, 255, ${randomOpacity}`;
+                console.log('setting width', randomWidth);
+                $rectangle.style.width = randomWidth + 'px';
+                $rectangle.style.height = randomHeight + 'px';
+                $rectangle.classList.add('loading-rect');
+                $rectangle.style.top = randomY + 'px';
+                $rectangle.style.left = randomX + 'px';
+                
+                $posterWrapper.append($rectangle);
+
+                if (counter > 0) {
+                    counter--;
+                    addRect()
+                } 
+            }, DEFAULT_TIMEOUT);
+        }
+
+        addRect();
+    }
+
+    const hideLoadingState = () => {
+        $posterWrapper.classList.add('loading-finished');
+    }
+
+    // showLoadingState();
     await enlargeTextToFillCanvas();
     await removeGaps();
     await fitTextInCanvas();
+    // hideLoadingState();
     console.log('done adjusting');
 }   
 
