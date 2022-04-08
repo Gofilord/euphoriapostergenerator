@@ -10,31 +10,73 @@ const DEFAULT_TIMEOUT = 200;
 
 const randomNumber = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
-const characters = {
+const complementingCharacterOffsets = {
     'rue': {
-        float: 'right'
+        left: 0,
+        top: '30%'
     },
     'cal': {
-        float: 'left'
+        left: '30%',
+        top: '-9%'
     },
     'nate': {
-        float: 'left'
+        left: 0,
+        top: '10%'
+    }
+}
+
+const characters = {
+    'rue': {
+        float: 'right',
+        complementingCharacter: {
+            name: '',
+            faceOffset: {
+                left: 0,
+                top: 0
+            }
+        }
+    },
+    'cal': {
+        float: 'left',
+        complementingCharacter: {
+            name: 'nate',
+            faceOffset: complementingCharacterOffsets['nate']
+        }
+    },
+    'nate': {
+        float: 'left',
+        complementingCharacter: {
+            name: 'cal',
+            faceOffset: complementingCharacterOffsets['cal']
+        }
     },
     'cassie': {
-        float: 'right'
+        float: 'right',
+        complementingCharacter: {
+            name: 'nate',
+            faceOffset: complementingCharacterOffsets['nate']
+        }
     },
     'maddy': {
-        float: 'right'
+        float: 'right',
+        complementingCharacter: {
+            name: 'nate',
+            faceOffset: complementingCharacterOffsets['nate']
+        }
     },
     'fezco': {
-        float: 'right'
+        float: 'right',
+        complementingCharacter: {
+            name: 'rue',
+            faceOffset: complementingCharacterOffsets['rue']
+        }
     }
 };
 
 const colors = [
     '#b35513',
-    '#0e9184',
-    '#0e3c91',
+    '#085a52',
+    '#143956',
     '#411b5e',
     '#6e0b39'
 ];
@@ -60,13 +102,12 @@ const smallWords = ['of', 'and', 'the', 'to'];
 
 
 const generate = async () => {
-    let generalFontSize = 18;
     const color = getRandomColor();
     const character = getRandomCharacter();
     const allQuotes = await fetchQuotes();
     const quote = allQuotes[character.name][Math.floor(Math.random() * allQuotes[character.name].length)];
     // const quote = allQuotes['cassie'][1];
-
+    
     let cache;
     const getWordElements = () => {
         if (cache) {
@@ -75,77 +116,27 @@ const generate = async () => {
         cache = document.querySelectorAll('.quote-word');
         return cache;
     }
-
-    const getLastWordRect = () => {
-        const words = getWordElements();
-        if (words.length) {
-            return words[words.length - 1].getClientRects()[0];
-        }
-    };
-
-    const removeGaps = async () => {
-        console.log('removing gaps');
-        const words = getWordElements();
-        let previousWordRect;
-        for (let i = 0; i < words.length; i++) {
-            const word = words[i]
-            const rect = word.getClientRects()[0];
-            if (previousWordRect) {
-                if ((rect.top - previousWordRect.top) > generalFontSize) { // that means there's a gap
-                    word.style.fontSize = (parseFloat(word.style.fontSize) - 10) + 'px';
-                }
-            }
-            previousWordRect = rect;
-        };
-        const amountOfRows = countRows() + 1;
-
-        // check if there are still gaps
-        if (getLastWordRect().bottom > (amountOfRows * generalFontSize) + 45) {
-            await removeGaps();
-        }
-
-        return;
-    };
-
-    const countRows = () => {
-        const words = getWordElements();
-        let counter = 0;
-        let prevRect;
-        for (let i = 0; i < words.length; i++) {
-            const word = words[i]
-            const rect = word.getClientRects()[0];
-            if (prevRect) {
-                if (rect.top !== prevRect.top) {
-                    counter++;
-                }
-            }
-            prevRect = rect;
-        };
-
-        return counter;
-    }
-
-    // adds @addition (px) to each and every word on the canvas
-    const updateFontSizeForAll = (addition) => new Promise ((resolve) => {
-        setTimeout(() => {
-            const words = getWordElements();
-            console.log('updating font size for', words.length);
-            for (let i = 0; i < words.length; i++) {
-                words[i].style.fontSize = (parseFloat(words[i].style.fontSize) + addition) + 'px';
-            }
-            generalFontSize += addition;
-            resolve();
-        }, DEFAULT_TIMEOUT)
-    });
-
+    
     const $posterWrapper = document.getElementById('poster-wrapper');
-    $posterWrapper.style.backgroundColor = color;
+    $posterWrapper.style.backgroundColor = color;  
+
+    const generalFontSize = ($posterWrapper.getBoundingClientRect().width / quote.length) + 15;
+    
+    // add complementing character
+    const $complementingSvg = document.createElement('img');
+    $complementingSvg.src = './svgs/' + character.complementingCharacter.name + '.svg';
+    $complementingSvg.classList.add('complementing-character');
+    $complementingSvg.style.left = character.complementingCharacter.faceOffset.left;
+    $complementingSvg.style.top = character.complementingCharacter.faceOffset.top;
+    
+    $posterWrapper.append($complementingSvg);
 
     // add svg
     const $svgElement = document.createElement('img');
     $svgElement.src = './svgs/' + character.name + '.svg';
     $svgElement.classList.add(character.name);
-
+    $svgElement.classList.add('character');
+    $svgElement.classList.add('svg');
     $posterWrapper.append($svgElement);
 
     const svgHeight = $svgElement.getBoundingClientRect().height;
@@ -155,16 +146,34 @@ const generate = async () => {
     $svgElement.style.marginRight = character.float === 'right' ? -30 + 'px' : 'auto';
     $svgElement.style.marginTop = (canvasHeight - svgHeight - 45) + 'px';
 
+    const $quoteWrapper = document.getElementById('quote-wrapper');
+
+    const INITIAL_DELAY = 2;
+    const quoteWords = quote.split(' ');
+
     // add quote words
-    quote.split(' ').forEach((word, index) => {
+    quoteWords.forEach((word, index) => {
         const fontSize = (smallWords.includes(word) ? generalFontSize * 0.7 : generalFontSize) + 'px';
         const $word = document.createElement('span');
         $word.innerHTML = word + " ";
         $word.classList.add('quote-word');
         $word.style.fontSize = fontSize;
 
-        $posterWrapper.append($word);
+        // each word different animation delay
+        $word.style.animationDelay = 1 + (index * (4 / quoteWords.length)) + 's';
+
+        $quoteWrapper.append($word);
     });
+
+    // add character name
+    const $characterName = document.createElement('span');
+    $characterName.classList.add('character-name');
+    $characterName.innerHTML = character.name;
+    $quoteWrapper.append($characterName);
+
+    setTimeout(() => {
+        inlineSVG.init();
+    }, 200)
 
     // add overlay
     const $overlay = document.createElement('div');
@@ -172,72 +181,23 @@ const generate = async () => {
     $overlay.style.background = `linear-gradient(15deg, ${color}, transparent), url(https://grainy-gradients.vercel.app/noise.svg)`;
     $posterWrapper.append($overlay);
 
-    // MAGIC IS HERE
-    const enlargeTextToFillCanvas = () => new Promise((resolve) => {
-        if (canvasHeight - getLastWordRect().y > 30) {
-            updateFontSizeForAll(4).then(() => {
-                enlargeTextToFillCanvas().then(resolve)
-            })
-        } else {
-            resolve();
-        }
-        
-    });
+    // add head movement
+    setTimeout(() => {
+        const $head = document.getElementById('head');
+        const docWidth = document.body.getBoundingClientRect().width;
+        document.addEventListener('mousemove', (ev) => {
+            let deg = (ev.clientX / docWidth) * 3;
+            $head.style.transform = 'rotate(' + deg + 'deg)'
+        });
 
-    const fitTextInCanvas = () => new Promise((resolve) => {
-        if (getLastWordRect().bottom > canvasHeight) {
-            updateFontSizeForAll(-4).then(() => {
-                fitTextInCanvas().then(resolve);
-            });
-        } else {
-            resolve();
-        }
-    });
+        // animate svg creation
+        const $paths = document.getElementsByTagName('path')
+        for (const path of $paths) {
+            path.style.strokeDashoffset = path.getTotalLength();
+            path.style.strokeDasharray = path.getTotalLength();
+        };
+    }, 300)
 
-    // show loading state
-    const showLoadingState = () => {
-        const canvasWidth = $posterWrapper.getClientRects()[0].width;
-        let counter = 100;
-
-        const addRect = () => {
-            setTimeout(() => {
-                const randomX = randomNumber(0, canvasWidth);
-                const randomY = randomNumber(0, canvasHeight);
-                const randomWidth = randomNumber(100, 700);
-                const randomHeight = randomNumber(100, 1000);
-                const randomOpacity = Math.random();
-    
-                const $rectangle = document.createElement('div');
-                $rectangle.style.background = `rgba(255, 255, 255, ${randomOpacity}`;
-                console.log('setting width', randomWidth);
-                $rectangle.style.width = randomWidth + 'px';
-                $rectangle.style.height = randomHeight + 'px';
-                $rectangle.classList.add('loading-rect');
-                $rectangle.style.top = randomY + 'px';
-                $rectangle.style.left = randomX + 'px';
-                
-                $posterWrapper.append($rectangle);
-
-                if (counter > 0) {
-                    counter--;
-                    addRect()
-                } 
-            }, DEFAULT_TIMEOUT);
-        }
-
-        addRect();
-    }
-
-    const hideLoadingState = () => {
-        $posterWrapper.classList.add('loading-finished');
-    }
-
-    // showLoadingState();
-    await enlargeTextToFillCanvas();
-    await removeGaps();
-    await fitTextInCanvas();
-    // hideLoadingState();
-    console.log('done adjusting');
 }   
 
 document.addEventListener('DOMContentLoaded', () => {

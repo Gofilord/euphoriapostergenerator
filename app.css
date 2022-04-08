@@ -37,36 +37,73 @@ body {
     top: 0;
     height: 100%;
     background: radial-gradient(transparent 70%, black);
-    z-index: 3;
+    z-index: 5;
     opacity: .2;
 }
 
-.poster-wrapper svg,
-.poster-wrapper img {
-    display: block;
-    height: 80%;
+.character,
+.complementing-character {
     mix-blend-mode: luminosity;
-    filter: contrast(1.6);
-    shape-margin: 10px;
 }
 
-.rue {
-    shape-outside: url('./svgs/rue.svg');
+.complementing-character {
+    position: absolute;
+    z-index: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    transform: scale(2);
+    opacity: .3;
+    filter: brightness(.5)
 }
-.cal {
-    shape-outside: url('./svgs/cal.svg');
+
+.character {
+    display: block;
+    position: relative;
+    height: 90%;
+    position: relative;
+    z-index: 1;
+    filter: contrast(1.6);
+
+    animation: character-appear 1s linear forwards;
 }
-.nate {
-    shape-outside: url('./svgs/nate.svg');
+
+#head {
+    transform-origin: center center;
+    transition: all .1s ease;
 }
-.cassie {
-    shape-outside: url('./svgs/cassie.svg');
+
+#quote-wrapper {
+    position: absolute;
+    bottom: 10vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    z-index: 7;
 }
-.maddy {
-    shape-outside: url('./svgs/maddy.svg');
+
+#quote-wrapper:before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: -20px;
+    top: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, .3);
+    transform-origin: top;
+    width: 6px;
+
+    animation: border 4s both ease 1s;
 }
-.fezco {
-    shape-outside: url('./svgs/fezco.svg');
+
+.character-name {
+    display: none;
+    width: auto;
+    position: relative;
+    top: 1vh;
+    color: white;
+    background: rgba(255, 255, 255, .3);
+    
 }
 
 .quote-word {
@@ -75,13 +112,17 @@ body {
     margin: 0;
     padding: 0;
     color: white;
-    font-size: 18px;
+    font-size: 22px;
+    letter-spacing: .6px;
     z-index: 2;
-    text-transform: uppercase;
-    line-height: 1;
+    text-transform: lowercase;
+    line-height: 1.2;
     font-weight: bold;
-    font-family: 'Volkhov', sans-serif;
+    font-family: 'Inconsolata', sans-serif;
     white-space: break-spaces;
+
+    opacity: 0;
+    animation: appear .2s forwards;
 }
 
 .overlay {
@@ -91,6 +132,8 @@ body {
     right: 0;
     top: 0;
     bottom: 0;
+    pointer-events: none;
+    z-index: 5;
 }
 
 .loading-rect {
@@ -99,4 +142,66 @@ body {
 
 .loading-finished .loading-rect {
     display: none;
+}
+
+.character path {
+    fill-opacity: 0;
+    stroke-opacity: 1;
+    stroke-width: 2px;
+    stroke: white;
+    animation: path 4s linear 1s both;
+}
+
+@keyframes character-appear {
+    0% {
+        opacity: 0;
+    }
+
+    80% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes path {
+    70% {
+        fill-opacity: 0;
+    }
+    
+    80% {
+        stroke-dashoffset: 0;
+        stroke-opacity: 1;
+        
+    }
+
+    100% {
+        stroke-opacity: 0;
+        stroke-dashoffset: 0;
+        fill-opacity: 1;
+    }
+}
+
+@keyframes border {
+    from {
+        opacity: 0;
+        transform: scaleY(0)
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleY(1)
+    }
 }
