@@ -16,6 +16,8 @@ body {
     aspect-ratio: .75;
     overflow: hidden;
     border: 15px solid white;
+
+    animation: appear 1.3s both ease;
 }
 
 @media screen and (max-width: 600px) {
@@ -180,7 +182,7 @@ body {
     70% {
         fill-opacity: 0;
     }
-    
+
     80% {
         stroke-dashoffset: 0;
         stroke-opacity: 1;

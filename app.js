@@ -22,6 +22,14 @@ const complementingCharacterOffsets = {
     'nate': {
         left: 0,
         top: '10%'
+    },
+    'cassie': {
+        left: '10%',
+        top: '10%'
+    },
+    'maddy': {
+        left: '-40%',
+        top: 0
     }
 }
 
@@ -53,15 +61,15 @@ const characters = {
     'cassie': {
         float: 'right',
         complementingCharacter: {
-            name: 'nate',
-            faceOffset: complementingCharacterOffsets['nate']
+            name: 'maddy',
+            faceOffset: complementingCharacterOffsets['maddy']
         }
     },
     'maddy': {
         float: 'right',
         complementingCharacter: {
-            name: 'nate',
-            faceOffset: complementingCharacterOffsets['nate']
+            name: 'cassie',
+            faceOffset: complementingCharacterOffsets['cassie']
         }
     },
     'fezco': {
@@ -78,7 +86,8 @@ const colors = [
     '#085a52',
     '#143956',
     '#411b5e',
-    '#6e0b39'
+    '#6e0b39',
+    '#886f2c'
 ];
 
 const getRandomCharacterName = () => {
@@ -86,8 +95,13 @@ const getRandomCharacterName = () => {
 };
 
 const getRandomCharacter = () => {
-    const name = getRandomCharacterName();
-    // const name = 'cassie';
+    let name = getRandomCharacterName();
+    // we don't want to repeat the same character twice in a row.
+    while (localStorage.getItem('lastCharacter') === name) {
+        name = getRandomCharacterName();
+    }
+    localStorage.setItem('lastCharacter', name);
+
     return {
         name,
         ...characters[name]
@@ -106,7 +120,6 @@ const generate = async () => {
     const character = getRandomCharacter();
     const allQuotes = await fetchQuotes();
     const quote = allQuotes[character.name][Math.floor(Math.random() * allQuotes[character.name].length)];
-    // const quote = allQuotes['cassie'][1];
     
     let cache;
     const getWordElements = () => {
@@ -120,7 +133,7 @@ const generate = async () => {
     const $posterWrapper = document.getElementById('poster-wrapper');
     $posterWrapper.style.backgroundColor = color;  
 
-    const generalFontSize = ($posterWrapper.getBoundingClientRect().width / quote.length) + 15;
+    const generalFontSize = ($posterWrapper.getBoundingClientRect().width / quote.length) + document.body.getBoundingClientRect().height / 45;
     
     // add complementing character
     const $complementingSvg = document.createElement('img');
