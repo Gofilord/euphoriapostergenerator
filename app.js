@@ -15,6 +15,10 @@ const complementingCharacterOffsets = {
         left: 0,
         top: '30%'
     },
+    'jules': {
+        left: '-25%',
+        top: '20%'
+    },
     'cal': {
         left: '30%',
         top: '-9%'
@@ -37,11 +41,8 @@ const characters = {
     'rue': {
         float: 'right',
         complementingCharacter: {
-            name: '',
-            faceOffset: {
-                left: 0,
-                top: 0
-            }
+            name: 'jules',
+            faceOffset: complementingCharacterOffsets['jules']
         }
     },
     'cal': {
@@ -73,6 +74,13 @@ const characters = {
         }
     },
     'fezco': {
+        float: 'right',
+        complementingCharacter: {
+            name: 'rue',
+            faceOffset: complementingCharacterOffsets['rue']
+        }
+    },
+    'jules': {
         float: 'right',
         complementingCharacter: {
             name: 'rue',
@@ -206,8 +214,11 @@ const generate = async () => {
         // animate svg creation
         const $paths = document.getElementsByTagName('path')
         for (const path of $paths) {
-            path.style.strokeDashoffset = path.getTotalLength();
-            path.style.strokeDasharray = path.getTotalLength();
+            const totalLength = path.getTotalLength();
+            path.style.strokeDashoffset = totalLength;
+            path.style.strokeDasharray = totalLength;
+            path.style.animation = 'path 4s linear both';
+            path.style.animationDelay = '1s';
         };
     }, 300)
 

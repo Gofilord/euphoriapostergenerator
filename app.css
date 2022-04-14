@@ -20,16 +20,6 @@ body {
     animation: appear 1.3s both ease;
 }
 
-@media screen and (max-width: 600px) {
-    .poster-wrapper {
-        aspect-ratio: none;
-        width: 100%;
-        border-right: none;
-        border-left: none;
-        height: 90vh;
-    }
-}
-
 .poster-wrapper:after {
     content: "";
     display: block;
@@ -151,7 +141,21 @@ body {
     stroke-opacity: 1;
     stroke-width: 2px;
     stroke: white;
-    animation: path 4s linear 1s both;
+    /* animation-delay: 1s; */
+}
+
+@media screen and (max-width: 600px) {
+    .poster-wrapper {
+        aspect-ratio: none;
+        width: 100%;
+        border-right: none;
+        border-left: none;
+        height: 90vh;
+    }
+
+    #quote-wrapper {
+        width: 90%;
+    }
 }
 
 @keyframes character-appear {
