@@ -10,81 +10,85 @@ const DEFAULT_TIMEOUT = 200;
 
 const randomNumber = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
-const complementingCharacterOffsets = {
-    'rue': {
-        left: 0,
-        top: '30%'
-    },
-    'jules': {
-        left: '-25%',
-        top: '20%'
-    },
-    'cal': {
-        left: '30%',
-        top: '-9%'
-    },
-    'nate': {
-        left: 0,
-        top: '10%'
-    },
-    'cassie': {
-        left: '10%',
-        top: '10%'
-    },
-    'maddy': {
-        left: '-40%',
-        top: 0
-    }
-}
-
 const characters = {
     'rue': {
         float: 'right',
-        complementingCharacter: {
-            name: 'jules',
-            faceOffset: complementingCharacterOffsets['jules']
-        }
+        complementingCharacter: 'jules',
+        faceOffset: {
+            left: 0,
+            top: '30%'
+        },
     },
     'cal': {
         float: 'left',
-        complementingCharacter: {
-            name: 'nate',
-            faceOffset: complementingCharacterOffsets['nate']
-        }
+        complementingCharacter: 'nate',
+        faceOffset: {
+            left: '30%',
+            top: '-9%'
+        },
     },
     'nate': {
         float: 'left',
-        complementingCharacter: {
-            name: 'cal',
-            faceOffset: complementingCharacterOffsets['cal']
-        }
+        complementingCharacter: 'cal',
+        faceOffset: {
+            left: 0,
+            top: '10%'
+        },
     },
     'cassie': {
         float: 'right',
-        complementingCharacter: {
-            name: 'maddy',
-            faceOffset: complementingCharacterOffsets['maddy']
-        }
+        complementingCharacter: 'maddy',
+        faceOffset: {
+            left: '10%',
+            top: '10%'
+        },
     },
     'maddy': {
         float: 'right',
-        complementingCharacter: {
-            name: 'cassie',
-            faceOffset: complementingCharacterOffsets['cassie']
+        complementingCharacter: 'cassie',
+        faceOffset: {
+            left: '-40%',
+            top: 0
         }
     },
     'fezco': {
         float: 'right',
-        complementingCharacter: {
-            name: 'rue',
-            faceOffset: complementingCharacterOffsets['rue']
+        complementingCharacter: 'lexi',
+        faceOffset: {
+            left: '80%',
+            top: 0
         }
     },
     'jules': {
         float: 'right',
-        complementingCharacter: {
-            name: 'rue',
-            faceOffset: complementingCharacterOffsets['rue']
+        complementingCharacter: 'rue',
+        faceOffset: {
+            left: '-25%',
+            top: '20%'
+        },
+    },
+    'ali': {
+        float: 'left',
+        complementingCharacter: 'rue',
+        faceOffset: {
+            left: 0,
+            top: 0
+        }
+    },
+    'lexi': {
+        float: 'left',
+        complementingCharacter: 'fezco',
+        faceOffset: {
+            left: '-30%',
+            top: '5%'
+        }
+    },
+    'kat': {
+        float: 'right',
+        complementingCharacter: 'maddy',
+        faceOffset: {
+            left: 0,
+            top: 0
         }
     }
 };
@@ -110,9 +114,15 @@ const getRandomCharacter = () => {
     }
     localStorage.setItem('lastCharacter', name);
 
+    const complementingCharacterName = characters[name].complementingCharacter;
+
     return {
         name,
-        ...characters[name]
+        ...characters[name],
+        complementingCharacter: {
+            name: complementingCharacterName,
+            faceOffset: characters[complementingCharacterName].faceOffset
+        }
     }
 }
 
@@ -128,15 +138,6 @@ const generate = async () => {
     const character = getRandomCharacter();
     const allQuotes = await fetchQuotes();
     const quote = allQuotes[character.name][Math.floor(Math.random() * allQuotes[character.name].length)];
-    
-    let cache;
-    const getWordElements = () => {
-        if (cache) {
-            return cache;
-        }
-        cache = document.querySelectorAll('.quote-word');
-        return cache;
-    }
     
     const $posterWrapper = document.getElementById('poster-wrapper');
     $posterWrapper.style.backgroundColor = color;  
@@ -204,13 +205,6 @@ const generate = async () => {
 
     // add head movement
     setTimeout(() => {
-        const $head = document.getElementById('head');
-        const docWidth = document.body.getBoundingClientRect().width;
-        document.addEventListener('mousemove', (ev) => {
-            let deg = (ev.clientX / docWidth) * 3;
-            $head.style.transform = 'rotate(' + deg + 'deg)'
-        });
-
         // animate svg creation
         const $paths = document.getElementsByTagName('path')
         for (const path of $paths) {
