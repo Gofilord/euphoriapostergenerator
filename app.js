@@ -99,7 +99,9 @@ const colors = [
     '#143956',
     '#411b5e',
     '#6e0b39',
-    '#886f2c'
+    '#886f2c',
+    '#9E6242',
+    '#7B5164'
 ];
 
 const getRandomCharacterName = () => {
@@ -154,8 +156,10 @@ const generate = async () => {
     $posterWrapper.append($complementingSvg);
 
     // add svg
-    const $svgElement = document.createElement('img');
-    $svgElement.src = './svgs/' + character.name + '.svg';
+    const template = document.createElement('template');
+    const svgContent = await fetch('./svgs/' + character.name + '.svg').then(res => res.text());
+    template.innerHTML = svgContent;
+    const $svgElement = template.content.firstChild;
     $svgElement.classList.add(character.name);
     $svgElement.classList.add('character');
     $svgElement.classList.add('svg');
@@ -193,10 +197,6 @@ const generate = async () => {
     $characterName.innerHTML = character.name;
     $quoteWrapper.append($characterName);
 
-    setTimeout(() => {
-        inlineSVG.init();
-    }, 200)
-
     // add overlay
     const $overlay = document.createElement('div');
     $overlay.classList.add('overlay');
@@ -214,7 +214,7 @@ const generate = async () => {
             path.style.animation = 'path 4s linear both';
             path.style.animationDelay = '1s';
         };
-    }, 300)
+    }, 100)
 
 }   
 

@@ -17,7 +17,7 @@ body {
     overflow: hidden;
     border: 15px solid white;
 
-    animation: appear 1.3s both ease;
+    animation: appear .6s both ease;
 }
 
 .poster-wrapper:after {
@@ -109,7 +109,7 @@ body {
     z-index: 2;
     text-transform: lowercase;
     line-height: 1.2;
-    font-weight: bold;
+    font-weight: 300;
     font-family: 'Inconsolata', sans-serif;
     white-space: break-spaces;
 
