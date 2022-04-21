@@ -200,7 +200,7 @@ const generate = async () => {
     // add overlay
     const $overlay = document.createElement('div');
     $overlay.classList.add('overlay');
-    $overlay.style.background = `linear-gradient(15deg, ${color}, transparent), url(https://grainy-gradients.vercel.app/noise.svg)`;
+    $overlay.style.background = `linear-gradient(15deg, ${color}, transparent), url(./noise.svg)`;
     $posterWrapper.append($overlay);
 
     // add head movement

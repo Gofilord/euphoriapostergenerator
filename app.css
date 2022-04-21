@@ -8,6 +8,22 @@ body {
     padding: 0;
 }
 
+.app {
+    position: relative;
+}
+
+.app:after {
+    position: absolute;
+    content: "made by Oren";
+    padding: 10px;
+    font-size: 13px;
+    font-family: 'Inconsolata';
+    letter-spacing: .4px;
+    color: #bbb;
+    bottom: 0;
+    right: 0;
+}
+
 .poster-wrapper {
     position: relative;
     margin: 0 auto;
@@ -17,7 +33,7 @@ body {
     overflow: hidden;
     border: 15px solid white;
 
-    animation: appear .6s both ease;
+    animation: appear 1s both ease;
 }
 
 .poster-wrapper:after {
@@ -144,7 +160,17 @@ body {
     /* animation-delay: 1s; */
 }
 
+.credit {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
 @media screen and (max-width: 600px) {
+    .app {
+        padding-bottom: 30px;
+    }
+    
     .poster-wrapper {
         aspect-ratio: none;
         width: 100%;
