@@ -33,7 +33,7 @@ body {
     overflow: hidden;
     border: 15px solid white;
 
-    animation: appear 1s both ease;
+    animation: appear 1s both .5s ease;
 }
 
 .poster-wrapper:after {
@@ -152,7 +152,11 @@ body {
     display: none;
 }
 
-.character path {
+.character path,
+.character polygon,
+.character ellipse,
+.character rect,
+.character circle {
     fill-opacity: 0;
     stroke-opacity: 1;
     stroke-width: 2px;
@@ -170,7 +174,7 @@ body {
     .app {
         padding-bottom: 30px;
     }
-    
+
     .poster-wrapper {
         aspect-ratio: none;
         width: 100%;

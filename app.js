@@ -203,10 +203,9 @@ const generate = async () => {
     $overlay.style.background = `linear-gradient(15deg, ${color}, transparent), url(./noise.svg)`;
     $posterWrapper.append($overlay);
 
-    // add head movement
     setTimeout(() => {
         // animate svg creation
-        const $paths = document.getElementsByTagName('path')
+        const $paths = document.querySelectorAll('path, polygon, circle, ellipse, rect')
         for (const path of $paths) {
             const totalLength = path.getTotalLength();
             path.style.strokeDashoffset = totalLength;
